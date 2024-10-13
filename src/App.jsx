@@ -56,7 +56,7 @@ function App() {
       <footer>
         <div className="footer-content">
          
-       <p>Made with ❤️ by AI Bramwel Agina</p>
+       <p>Made with ❤️ by Bramwel Agina</p>
           <div className="social-links">
             <a href="https://www.linkedin.com/in/bramwel-agina-a88678266/">LinkedIn</a>
             <a href="https://bramwelagina.my.canva.site/myportofolio">My Portfolio</a>
