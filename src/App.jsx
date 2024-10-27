@@ -28,11 +28,16 @@ function App() {
         body: JSON.stringify({ text: inputText }),
       });
 
+      // Log the response for debugging
+      console.log("Response Status:", response.status);
+      const responseText = await response.text(); // Get raw response text
+      console.log("Response Text:", responseText); // Log the raw response
+
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error(`Network response was not ok: ${response.status} ${responseText}`);
       }
 
-      const data = await response.json();
+      const data = JSON.parse(responseText); // Parse the response text
       setResult(data); // Update result with API response
 
       // Show popup for a short time
