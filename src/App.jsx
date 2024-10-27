@@ -2,15 +2,50 @@ import React, { useState } from "react";
 import "./App.css";
 
 function App() {
-  // State for handling pop-up visibility
+  // State for handling pop-up visibility and results
   const [showPopup, setShowPopup] = useState(false);
+  const [result, setResult] = useState(null);
+  const [inputText, setInputText] = useState("");
+  const [loading, setLoading] = useState(false); // State for loading
 
-  // Function to handle the button click (show the pop-up)
-  const handleCheckText = () => {
-    setShowPopup(true);
-    setTimeout(() => {
-      setShowPopup(false); // Hide pop-up after 3 seconds
-    }, 3000);
+  // Function to handle text input change
+  const handleInputChange = (event) => {
+    setInputText(event.target.value);
+  };
+
+  // Function to handle the button click (send text to API)
+  const handleCheckText = async () => {
+    if (!inputText.trim()) return; // Ensure there is text to analyze
+    setLoading(true); // Start loading
+    setResult(null); // Reset result
+
+    try {
+      const response = await fetch("https://aitextdetectormodel.onrender.com/predict", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: inputText }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      setResult(data); // Update result with API response
+
+      // Show popup for a short time
+      setShowPopup(true);
+      setTimeout(() => {
+        setShowPopup(false); // Hide pop-up after 3 seconds
+      }, 3000);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      alert("An error occurred while fetching data. Please try again."); // User-friendly error message
+    } finally {
+      setLoading(false); // Stop loading
+    }
   };
 
   return (
@@ -39,24 +74,41 @@ function App() {
         <textarea
           className="text-input"
           placeholder="Paste your text here to analyze..."
+          value={inputText}
+          onChange={handleInputChange}
         ></textarea>
-        <button className="analyze-btn" onClick={handleCheckText}>
-          Check Text
+        <button className="analyze-btn" onClick={handleCheckText} disabled={loading}>
+          {loading ? "Analyzing..." : "Check Text"}
         </button>
       </section>
+
+      {/* Progress Bar */}
+      {loading && <div className="progress-bar"></div>}
+
+      {/* Display Results */}
+      {result && (
+        <div className="results">
+          <h2>Results</h2>
+          <div className="result-item">
+            <p>AI Probability: {(result.AI_probability * 100).toFixed(2)}%</p>
+          </div>
+          <div className="result-item">
+            <p>Human Probability: {(result.Human_probability * 100).toFixed(2)}%</p>
+          </div>
+        </div>
+      )}
 
       {/* Pop-up Message */}
       {showPopup && (
         <div className="popup">
-          <p>The AI model is being trained and will be deployed soon!</p>
+          <p>Analyzing text...</p>
         </div>
       )}
 
       {/* Footer */}
       <footer>
         <div className="footer-content">
-         
-       <p>Made with ❤️ by Bramwel Agina</p>
+          <p>Made with ❤️ by Bramwel Agina</p>
           <div className="social-links">
             <a href="https://www.linkedin.com/in/bramwel-agina-a88678266/">LinkedIn</a>
             <a href="https://bramwelagina.my.canva.site/myportofolio">My Portfolio</a>
